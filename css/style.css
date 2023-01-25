@@ -1,0 +1,31 @@
+.board {
+    box-sizing: border-box;
+    height: 400px;
+    width: 400px;
+    background-color: aquamarine;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    /* background-color: blue; */
+    display: inline-block;
+}
+
+.alien {
+    background-color: green;
+}
+
+.hero {
+    background-color: red;
+}
+table{
+    border-collapse: collapse;
+
+}
+td {
+    width: 40px;
+    height: 40px;
+    background-color: blue;
+    border: 2px solid black;
+}
