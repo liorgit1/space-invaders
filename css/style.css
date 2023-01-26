@@ -1,4 +1,4 @@
-.board {
+/* .board {
     box-sizing: border-box;
     height: 400px;
     width: 400px;
@@ -8,7 +8,7 @@
 .cell {
     width: 40px;
     height: 40px;
-    /* background-color: blue; */
+    background-color: blue;
     display: inline-block;
 }
 
@@ -28,4 +28,70 @@ td {
     height: 40px;
     background-color: blue;
     border: 2px solid black;
+} */
+
+
+
+body {
+    background: #000000;
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+}
+
+.score {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.boardContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+td {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 2em;
+
+}
+
+.cell {
+    border: 1px solid #ffffff;
+    min-width: 60px;
+    min-height: 60px;
+}
+
+
+
+button {
+    background-color: #3b3b3b; /* Dark gray color */
+    color: #fff; /* White text */
+    padding: 10px 15px; /* Padding around the button text */
+    border-radius: 5px; /* Rounded corners */
+    border: none; /* No border */
+    font-size: 16px; /* Font size for the button text */
+    cursor: pointer; /* Hand cursor on hover */
+    transition: background-color 0.2s ease-in-out; /* Smooth transition on hover */
+}
+
+button:hover {
+    background-color: #4c4c4c; /* Slightly darker gray color on hover */
+}
+
+button:active {
+    background-color: #2b2b2b; /* Even darker gray color when clicked */
+}
+
+
+.buttons{
+    text-align: center;
 }

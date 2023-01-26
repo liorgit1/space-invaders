@@ -1,4 +1,4 @@
-const LASER_SPEED = 80;
+let LASER_SPEED = 80;
 var gHero = { pos: { i: 12, j: 5 }, isShoot: false };
 // creates the hero and place it on board
 function createHero() {
@@ -13,28 +13,48 @@ function onKeyDown(event) {
     var i = gHero.pos.i
     var j = gHero.pos.j
 
+    console.log('event.key :>> ', event.key);
     switch (event.key) {
+
         case 'ArrowLeft':
-            if (j - 1 >= 0) moveHero(i, j - 1)
+            if (j - 1 >= 0 && gGame.isOn) moveHero(i, j - 1)
             break
         case 'ArrowRight':
-            if (j + 1 < gBoard[0].length) moveHero(i, j + 1)
+            if (j + 1 < gBoard[0].length && gGame.isOn) moveHero(i, j + 1)
             break
-        case 'ArrowUp':
-            shoot()
+        case ' ':
+            if (!gHero.isShoot && gGame.isOn) shoot()
             break
+        case 'n':
+            if (!gHero.isShoot && gGame.isOn) {
+                shoot()
+                nShot = true
+            }
+            break
+        case 'x': if (gGame.isOn) {
 
+            isSuper = true
+            setTimeout(() => {
+                isSuper = false
+                LASER_SPEED = 80
+            }, 3000);
+        }
+            break
     }
-    // console.log('event :>> ', event);
 
+
+    // console.log('event :>> ', event);
 }
+
+
 onKeyDown()
 // Move the hero right (1) or left (-1)
 function moveHero(i, j) {
     // Move the gamer
     // Moving from current position
     // Update model
-    gBoard[gHero.pos.i][gHero.pos.j].gameElement = null
+
+    gBoard[gHero.pos.i][gHero.pos.j].gameObject = null
     // Update dom
     renderCell(gHero.pos, '')
 
@@ -42,86 +62,115 @@ function moveHero(i, j) {
     // Update model
     gHero.pos.i = i
     gHero.pos.j = j
-    gBoard[gHero.pos.i][gHero.pos.j].gameElement = HERO
+    gBoard[gHero.pos.i][gHero.pos.j].gameObject = HERO
     // Update dom
     renderCell(gHero.pos, HERO)
 
-
-
 }
-// Sets an interval for shutting (blinking) the laser up towards aliens
-// function shoot() {
-//     var shootIdxI = gHero.pos.i - 1
-//     var shootIdxJ = gHero.pos.j
 
-
-//     // var intervalId = setInterval(() => {
-//     //     // check if laser reached top or hit an alien
-//     //     if (shootIdxI < 0 || gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN) {
-//     //         clearInterval(intervalId);
-//     //         return;
-//     //     }
-//     //     blinkLaser({ i: shootIdxI, j: shootIdxJ });
-//     //     // move laser up
-//     //     shootIdxI--;
-//     // }, 1000);
-
-
-
-
-
-
-
-//     for (let i = shootIdxI; i >= 0; i--) {
-//         const currcell = gBoard[i][shootIdxJ];
-//         blinkLaser()
-
-
-
-
-//         if (currcell.gameObject === ALIEN) {
-//             updateCell({ i: i, j: shootIdxJ })
-
-
-//             break;
-//         }
-//     }
-// }
 function shoot() {
-    var shootIdxI = gHero.pos.i - 1;
-    var shootIdxJ = gHero.pos.j;
-    var intervalId = setInterval(() => {
-        if (shootIdxI < 0 || gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN) {
-            clearInterval(intervalId);
+    LASER = isSuper ? '^' : '⤊';
+    LASER_SPEED = isSuper ? LASER_SPEED /= 1.5 : LASER_SPEED
+    gHero.isShoot = true
+    let shootIdxI = gHero.pos.i - 1;
+    let shootIdxJ = gHero.pos.j;
+    let shootIntervalId = setInterval(() => {
+
+        if (shootIdxI < 0) {
+            gHero.isShoot = false
+            clearInterval(shootIntervalId);
+            gGame.aliensCount = countAliens()
             return;
         }
-        blinkLaser({i:shootIdxI,j:shootIdxJ});
+        if (gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN && !nShot) {
+            gBoard[shootIdxI][shootIdxJ].gameObject = null
+            gGame.aliensCount = countAliens()
+            updateCell({ i: shootIdxI, j: shootIdxJ })
+            updateScore(10)
+            // handleAlienHit({ i: shootIdxI, j: shootIdxJ },null)
+            
+            gHero.isShoot = false
+            clearInterval(shootIntervalId)
+            if (gGame.aliensCount === 0) {
+                clearInterval(gCandyInterval)
+                gGame.isOn = false
+                console.log('you win');
+
+
+            }
+            return
+        } else if (gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN && nShot) {
+
+            blowUpNeighbors({ i: shootIdxI, j: shootIdxJ })
+            gHero.isShoot = false
+            nShot = false
+            clearInterval(shootIntervalId)
+            gGame.aliensCount = countAliens()
+            if (gGame.aliensCount === 0) {
+                gGame.isOn = false
+                clearInterval(gCandyInterval)
+                console.log('you win');}
+                return
+            }
+            
+            else if (gBoard[shootIdxI][shootIdxJ].gameObject === CANDY) {
+                gIsAlienFreeze = true
+                updateScore(50)
+                setTimeout(() => { gIsAlienFreeze = false }, 5000)
+                
+                
+                
+            }
+            
+        blinkLaser({ i: shootIdxI, j: shootIdxJ });
         shootIdxI--;
-    }, 1000);
-
+    }, LASER_SPEED);
 }
 
-function handleAlienHit(pos) {
-    var cell = gBoard[pos.i][pos.j];
 
 
-}
-// renders a LASER at specific cell for short time and removes it
-// function blinkLaser(pos) {
-//     var cell = getElCell(pos)
-//     renderCell(pos, LASER)
-//     setTimeout(() => {
-//         renderCell(pos)
-//     }, LASER_SPEED)
 
+// function handleAlienHit(pos) {
+//     gBoard[shootIdxI][shootIdxJ].gameObject = null
+//     updateCell({ i: shootIdxI, j: shootIdxJ })
 // }
+
+
 
 function blinkLaser(pos) {
     var cell = getElCell(pos)
     cell.gameObject = LASER;
-    updateCell(pos,LASER)
+    updateCell(pos, LASER)
     setTimeout(() => {
         cell.gameObject = null;
         updateCell(pos)
-    }, 1000);
+    }, LASER_SPEED);
+}
+
+
+
+
+
+function blowUpNeighbors(laserPos) {
+    var neighbors = getNeighbors(laserPos);
+    console.log('neighbors :>> ', neighbors);
+    for (let i = 0; i < neighbors.length; i++) {
+        var neighborPos = neighbors[i];
+        if (gBoard[neighborPos.i][neighborPos.j].gameObject === ALIEN) {
+            updateCell(neighborPos, null)
+            updateScore(10)
+        }
+    }
+}
+
+function getNeighbors(pos) {
+    var neighbors = [];
+    for (let i = pos.i - 1; i <= pos.i + 1; i++) {
+        for (let j = pos.j - 1; j <= pos.j + 1; j++) {
+            if (i < 0 || i >= gBoard.length || j < 0 || j >= gBoard[0].length) continue;
+
+            neighbors.push({ i: i, j: j });
+        }
+    }
+    return neighbors;
 }
