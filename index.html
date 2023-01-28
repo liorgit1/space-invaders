@@ -11,11 +11,11 @@
 
 <body onkeydown="onKeyDown(event)" onload="init()">
     <div class="buttons">
-        <button onclick="freeze()"> freeze()</button>
+        <button class="freezeBtn" onclick="freeze()"> <span>freeze</span></button>
         <button onclick="init(10,2)"> eazy</button>
         <button onclick="init()"> medium</button>
         <button onclick="init(16,5)"> hard</button>
-        <button onclick="starGame()"> start game </button>
+        <button class="startBtn" onclick="starGame()"> <span>start game</span>  </button>
     </div>
     <div class="score"><span>0</span> </div>
     <div class="boardContainer">
@@ -24,7 +24,7 @@
             <tbody class="board"></tbody>
         </table>
     </div>
-
+<div hidden class="modal"><span> game over</span></div>
 
     <script src="js/game.js"></script>
     <script src="js/hero.js"></script>

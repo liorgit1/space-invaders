@@ -1,9 +1,9 @@
 let LASER_SPEED = 80;
-var gHero = { pos: { i: 12, j: 5 }, isShoot: false };
+
 // creates the hero and place it on board
 function createHero() {
     return {
-        pos: { i: 12, j: 5 },
+        pos: { i: 9, j: 5 },
         isShoot: false
     };
 }
@@ -27,8 +27,8 @@ function onKeyDown(event) {
             break
         case 'n':
             if (!gHero.isShoot && gGame.isOn) {
-                shoot()
                 nShot = true
+                shoot()
             }
             break
         case 'x': if (gGame.isOn) {
@@ -69,7 +69,11 @@ function moveHero(i, j) {
 }
 
 function shoot() {
-    LASER = isSuper ? '^' : '⤊';
+
+
+    if (nShot) LASER = '💥'
+    else if (isSuper) LASER = '^'
+    else LASER = '⤊'
     LASER_SPEED = isSuper ? LASER_SPEED /= 1.5 : LASER_SPEED
     gHero.isShoot = true
     let shootIdxI = gHero.pos.i - 1;
@@ -80,17 +84,19 @@ function shoot() {
             gHero.isShoot = false
             clearInterval(shootIntervalId);
             gGame.aliensCount = countAliens()
+            nShot = false
             return;
         }
         if (gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN && !nShot) {
+            // handleAlienHit(shootIdxI, shootIdxJ)
+            gHero.isShoot = false
+            clearInterval(shootIntervalId)
             gBoard[shootIdxI][shootIdxJ].gameObject = null
             gGame.aliensCount = countAliens()
             updateCell({ i: shootIdxI, j: shootIdxJ })
             updateScore(10)
-            // handleAlienHit({ i: shootIdxI, j: shootIdxJ },null)
-            
-            gHero.isShoot = false
-            clearInterval(shootIntervalId)
+
+
             if (gGame.aliensCount === 0) {
                 clearInterval(gCandyInterval)
                 gGame.isOn = false
@@ -101,27 +107,29 @@ function shoot() {
             return
         } else if (gBoard[shootIdxI][shootIdxJ].gameObject === ALIEN && nShot) {
 
+            // handleAliensNshot(shootIdxI, shootIdxJ)
+            clearInterval(shootIntervalId)
             blowUpNeighbors({ i: shootIdxI, j: shootIdxJ })
             gHero.isShoot = false
             nShot = false
-            clearInterval(shootIntervalId)
             gGame.aliensCount = countAliens()
             if (gGame.aliensCount === 0) {
                 gGame.isOn = false
                 clearInterval(gCandyInterval)
-                console.log('you win');}
-                return
+                console.log('you win');
             }
-            
-            else if (gBoard[shootIdxI][shootIdxJ].gameObject === CANDY) {
-                gIsAlienFreeze = true
-                updateScore(50)
-                setTimeout(() => { gIsAlienFreeze = false }, 5000)
-                
-                
-                
-            }
-            
+            return
+        }
+
+        else if (gBoard[shootIdxI][shootIdxJ].gameObject === CANDY) {
+            gIsAlienFreeze = true
+            updateScore(50)
+            setTimeout(() => { gIsAlienFreeze = false }, 5000)
+
+
+
+        }
+
         blinkLaser({ i: shootIdxI, j: shootIdxJ });
         shootIdxI--;
     }, LASER_SPEED);
@@ -130,12 +138,24 @@ function shoot() {
 
 
 
-// function handleAlienHit(pos) {
-//     gBoard[shootIdxI][shootIdxJ].gameObject = null
-//     updateCell({ i: shootIdxI, j: shootIdxJ })
-// }
+function handleAlienHit(shootIdxI, shootIdxJ) {
+    gHero.isShoot = false
+    clearInterval(shootIntervalId)
+    gBoard[shootIdxI][shootIdxJ].gameObject = null
+    gGame.aliensCount = countAliens()
+    updateCell({ i: shootIdxI, j: shootIdxJ })
+    updateScore(10)
 
 
+}
+
+function handleAliensNshot(shootIdxI, shootIdxJ) {
+    clearInterval(shootIntervalId)
+    blowUpNeighbors({ i: shootIdxI, j: shootIdxJ })
+    gHero.isShoot = false
+    nShot = false
+    gGame.aliensCount = countAliens()
+}
 
 function blinkLaser(pos) {
     var cell = getElCell(pos)
@@ -145,6 +165,16 @@ function blinkLaser(pos) {
         cell.gameObject = null;
         updateCell(pos)
     }, LASER_SPEED);
+}
+
+function blinkRock(pos) {
+    var cell = getElCell(pos)
+    cell.gameObject = ROCK;
+    updateCell(pos, ROCK)
+    setTimeout(() => {
+        cell.gameObject = null;
+        updateCell(pos)
+    }, 80);
 }
 
 
@@ -174,3 +204,15 @@ function getNeighbors(pos) {
     }
     return neighbors;
 }
+
+// function getNeighbors(pos) {
+//     var neighbors = [];
+//     for (let i = pos.i - 1; i <= pos.i + 1; i++) {
+//         for (let j = pos.j - 1; j <= pos.j + 1; j++) {
+//             if (i < 0 || i >= gBoard.length || j < 0 || j >= gBoard[0].length) continue;
+//             if (i === pos.i && j === pos.j) continue; // added condition to check if current cell is not the same as the given cell
+//             neighbors.push({ i: i, j: j });
+//         }
+//     }
+//     return neighbors;
+// }

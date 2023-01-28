@@ -73,25 +73,47 @@ td {
 
 
 button {
-    background-color: #3b3b3b; /* Dark gray color */
-    color: #fff; /* White text */
-    padding: 10px 15px; /* Padding around the button text */
-    border-radius: 5px; /* Rounded corners */
-    border: none; /* No border */
-    font-size: 16px; /* Font size for the button text */
-    cursor: pointer; /* Hand cursor on hover */
-    transition: background-color 0.2s ease-in-out; /* Smooth transition on hover */
+    background-color: #3b3b3b;
+    /* Dark gray color */
+    color: #fff;
+    /* White text */
+    padding: 10px 15px;
+    /* Padding around the button text */
+    border-radius: 5px;
+    /* Rounded corners */
+    border: none;
+    /* No border */
+    font-size: 16px;
+    /* Font size for the button text */
+    cursor: pointer;
+    /* Hand cursor on hover */
+    transition: background-color 0.2s ease-in-out;
+    /* Smooth transition on hover */
 }
 
 button:hover {
-    background-color: #4c4c4c; /* Slightly darker gray color on hover */
+    background-color: #4c4c4c;
+    /* Slightly darker gray color on hover */
 }
 
 button:active {
-    background-color: #2b2b2b; /* Even darker gray color when clicked */
+    background-color: #2b2b2b;
+    /* Even darker gray color when clicked */
 }
 
 
-.buttons{
+.buttons {
     text-align: center;
+}
+
+.modal {
+position: fixed;
+height: 250px;
+width: 70%;
+color: red;
+bottom: 500px;
+left: 200px;
+background-color: transparent;
+color: red;
+font-size: 200px;
 }

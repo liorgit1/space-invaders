@@ -1,4 +1,4 @@
-const ALIEN_SPEED = 500;
+const ALIEN_SPEED = 250;
 var GgoLeft = true
 var gAliensInterval;
 // The following two variables represent the part of the matrix (some rows)
@@ -6,6 +6,7 @@ var gAliensInterval;
 // We need to update those when:
 // (1) shifting down and (2) last alien was cleared from row
 var gAliensTopRowIdx;
+var randBottomcollIdx
 var gAliensBottomRowIdx;
 var gIsAlienFreeze = true;
 function createAlien(i, j) {
@@ -20,94 +21,95 @@ function createAlien(i, j) {
     return alien
     // board[alien.pos.i][alien.pos.j] = alien
 }
-function handleEdges() {
-    // debugger
 
-
-
-
-    for (let i = 0; i < gBoard.length; i++) {
-        if (gBoard[i][0].gameObject === ALIEN || gBoard[i][gBoard[0].length - 1].gameObject === ALIEN) {
-            GgoLeft = !GgoLeft
-            gBoard = moveAlienceDown()
-            // gBoard=moveAlienceLeft()
-            // renderBoard(gBoard)
-        }
-        break
-
-    }
-
-}
 
 
 // runs the interval for moving aliens side to side and down
 // it re-renders the board every time
 // when the aliens are reaching the hero row - interval stops
 function moveAliens() {
-    if (gIsAlienFreeze) return;
+    if (gIsAlienFreeze || !gGame.isOn) return;
     gAliensBottomRowIdx = findBottomRowIdx()
-    gAliensTopRowIdx = findTopRowIdx()
+
+    // shootRock()
     if (gAliensBottomRowIdx === gHero.pos.i) {
-        clearInterval(gAliensInterval)
-        console.log('gameover ');
+        gameOver()
+
         return
     }
 
-    handleEdges()
-    gBoard = moveAlienceLeft()
-    // gBoard = moveAlienceDown()
-    // console.log('gBoard :>> ', gBoard);
+
+    gBoard = moveAliensLeft()
     renderBoard(gBoard)
 }
+let shootIdxI =gAliensBottomRowIdx+1
+let shootIdxJ = randBottomcollIdx
 
-// function moveAlienceLeft() {
-//     var newBoard = copyMat(gBoard) //JSON.parse(JSON.stringify(gBoard))
-//     newBoard = clearBoardFromAlience(newBoard)
-//     var diff = GgoLeft ? -1 : +1
-
-//     //   
-
-
-
-//     for (let i = gBoard.length - 1; i >= 0; i--) {
-//         // debugger
-
-//         // Move all aliens one cell left or right \
-//         for (let j = gBoard[0].length - 1; j >= 0; j--) {
-
-//             if (gBoard[i][j].gameObject === ALIEN) {
-//                 if (newBoard[i][j + diff]) newBoard[i][j + diff].gameObject = ALIEN
-//                 else {
-//                     GgoLeft = !GgoLeft
-//                     newBoard = moveAlienceLeft()
-//                     newBoard = moveAlienceDown()
-//                     return newBoard
-
-//                 }
-//             }
-
+// function shootRock() {
+    
+//     randBottomcollIdx = findBottomcollsIdxs(gAliensBottomRowIdx)
+    
+    
+    
+    
+//     let shootRockIntervalId = setInterval(() => { 
+//         if (shootIdxI > gBoard.length){
+//             clearInterval(shootRockIntervalId)
+//             return
 //         }
-//     }
-//     return newBoard
+        
+//         if (gBoard[shootIdxI][shootIdxJ].gameObject ===HERO)gameOver()
+        
+//         blinkRock({ i: shootIdxI, j: shootIdxJ });
+//         shootIdxI++
+        
+        
+        
+        
+        
+        
+        
+        
+//     },1000)
+    
 // }
 
+function findBottomcollsIdxs(row) {
+    var collsIdxs = []
 
-function moveAlienceLeft() {
+
+    for (let i = 0; i < gBoard[row].length; i++) {
+        if (gBoard[row][i].gameObject === ALIEN) {
+
+            collsIdxs.push(i)
+
+
+        }
+
+    }
+
+    var randIdx = getRandomIntInclusive(0, collsIdxs.length - 1);
+    var randomCollIdx = collsIdxs[randIdx];
+    console.log('randomCollIdx :>> ', randomCollIdx);
+    return randomCollIdx
+
+}
+function moveAliensLeft() {
     let newBoard = copyMat(gBoard) //JSON.parse(JSON.stringify(gBoard))
-    newBoard = clearBoardFromAlience(newBoard)
+    newBoard = clearBoardFromAliens(newBoard)
     var diff = GgoLeft ? -1 : +1
-
+    
     for (let i = gBoard.length - 1; i >= 0; i--) {
         for (let j = gBoard[0].length - 1; j >= 0; j--) {
-
+            
             if (gBoard[i][j].gameObject === ALIEN) {
                 // if there is a candy in the same cell as the alien, remove it
                 if (gBoard[i][j].gameObject === CANDY) newBoard[i][j].gameObject = CANDY;
                 else if (newBoard[i][j + diff]) newBoard[i][j + diff].gameObject = ALIEN
                 else {
                     GgoLeft = !GgoLeft
-                    newBoard = moveAlienceLeft()
-                    newBoard = moveAlienceDown()
+                    newBoard = moveAliensLeft()
+                    newBoard = moveAliensDown()
                     return newBoard
                 }
             }
@@ -117,9 +119,9 @@ function moveAlienceLeft() {
     return newBoard
 }
 
-function moveAlienceDown() {
+function moveAliensDown() {
     var newBoard = copyMat(gBoard) //JSON.parse(JSON.stringify(gBoard))
-    newBoard = clearBoardFromAlience(newBoard)
+    newBoard = clearBoardFromAliens(newBoard)
     // Move all aliens one cell down\
 
     for (let i = gBoard.length - 1; i >= 0; i--) {
@@ -137,7 +139,7 @@ function moveAlienceDown() {
 }
 
 
-function clearBoardFromAlience(mat) {
+function clearBoardFromAliens(mat) {
 
     var newMat = []
     for (let i = 0; i < mat.length; i++) {
@@ -190,5 +192,6 @@ function countAliens() {
         }
 
     }
+    if (count === 0) win()
     return count
 }

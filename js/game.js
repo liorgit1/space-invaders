@@ -4,6 +4,7 @@ const ALIENS_ROW_COUNT = 3
 const HERO = '🚀';
 const ALIEN = '👽';
 const CANDY = '🍭';
+const ROCK = '⚽'
 var isSuper = false
 // Matrix of cell objects. e.g.: {type: SKY, gameObject: ALIEN}
 var gBoard;
@@ -12,7 +13,7 @@ let gCandyInterval
 let emptyPos
 let nShot = false
 // nShots
-let LASER = '⤊';
+var gHero
 
 
 var gGame = {
@@ -22,9 +23,10 @@ var gGame = {
 }
 // Called when game loads
 function init(size, aliensRows) {
+    gGame.isOn = false
     clearInterval(gCandyInterval)
     clearInterval(gAliensInterval)
-    createHero()
+    gHero = createHero()
     gBoard = createBoard(size, aliensRows)
     renderBoard(gBoard)
     gAliensInterval = setInterval(moveAliens, ALIEN_SPEED)
@@ -32,6 +34,10 @@ function init(size, aliensRows) {
     gAliensBottomRowIdx = findBottomRowIdx()
     gCandyInterval = setInterval(placeCandy, 10000)
     isSuper = false
+    gGame.score = 0
+    document.querySelector('.startBtn span').innerText = 'start'
+    document.querySelector('.score span').innerText = gGame.score
+    document.querySelector('.modal').hidden = true
 }
 // Create and returns the board with aliens on top, ground at bottom
 // use the functions: createCell, createHero, createAliens
@@ -99,10 +105,11 @@ function updateCell(pos, gameObject = null) {
 
 function freeze() {
     gIsAlienFreeze = !gIsAlienFreeze
+    document.querySelector('.freezeBtn span').innerText = gIsAlienFreeze ? 'unfreeze' : 'freeze'
 }
 function placeCandy() {
 
-
+    if (gIsAlienFreeze || !gGame.isOn) return;
     let emptyPos = getEmptyPos(gBoard)
     if (!emptyPos) return
     gBoard[emptyPos.i][emptyPos.j].gameObject = CANDY
@@ -140,9 +147,27 @@ function updateScore(diff) {
 
 
 function starGame() {
-    if (gGame.aliensCount>0) {
+    if (gGame.isOn) {
+        init()
+        document.querySelector('.startBtn span').innerText = 'start'
+    }
+    else {
+        document.querySelector('.startBtn span').innerText = 'restart'
         gGame.isOn = true
         gIsAlienFreeze = false
-        
     }
+
+}
+function gameOver() {
+    document.querySelector('.modal ').hidden = false
+    document.querySelector('.modal span').innerText = 'game over'
+    clearInterval(gAliensInterval)
+    gGame.isOn = false
+}
+
+
+function win() {
+    document.querySelector('.modal ').hidden = false
+    document.querySelector('.modal span').innerText = 'you win'
+
 }
